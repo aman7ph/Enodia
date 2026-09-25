@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 mod apps;
 
 #[tauri::command]
@@ -7,7 +6,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn list_installed_apps() -> Vec<HashMap<String, String>> {
+fn list_installed_apps() -> Vec<apps::collect_installed_apps::InstalledApp> {
     apps::collect_installed_apps::collect_installed_apps()
 }
 
