@@ -123,7 +123,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      <Header onRefresh={loadData} isRefreshing={loading} />
+      <Header onRefresh={loadData} isRefreshing={isRefreshing} />
 
       <Toolbar
         searchTerm={searchTerm}
