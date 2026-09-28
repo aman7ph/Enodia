@@ -14,34 +14,29 @@ function App() {
   );
   const [selectedAppIds, setSelectedAppIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
+    setIsRefreshing(true);
     try {
       const installedApps = await invoke<InstalledApp[]>("list_installed_apps");
-      const ids = installedApps.map((a) => a.id);
-      console.log(
-        "duplicate ids:",
-        ids.filter((id, i) => ids.indexOf(id) !== i),
-      );
       const blockedApps: BlockedApp[] = [];
 
-      setApps(installedApps || []);
+      setApps(installedApps);
 
-      // Build sets for both path-based and PKG-based rules
       const blockedPathSet = new Set<string>();
       const blockedPkgSet = new Set<string>();
 
-      (blockedApps || []).forEach((app: BlockedApp) => {
+      blockedApps.forEach((app: BlockedApp) => {
         const name = app.appPath || app.displayName;
         if (name.includes("PKG-")) {
-          // Extract the display name from PKG rules
           blockedPkgSet.add(name.replace("PKG-", "").toLowerCase());
         } else {
           blockedPathSet.add(name.toLowerCase());
@@ -53,6 +48,7 @@ function App() {
     } catch (err) {
       console.error("Failed to load apps:", err);
     }
+    setIsRefreshing(false);
     setLoading(false);
   };
 
