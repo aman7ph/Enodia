@@ -1,5 +1,6 @@
 use serde::Serialize;
 use super::find_uninstall_root_keys::find_uninstall_root_keys;
+use super::find_executables::find_executables;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -38,13 +39,18 @@ pub fn collect_installed_apps() -> Vec<InstalledApp> {
                 let install_path = app_registry_key
                     .get_value::<String, _>("InstallLocation")
                     .unwrap_or_default();
-
+            
+                let executables = if install_path.is_empty() {
+                             Vec::new()
+                        } else {
+                             find_executables(&install_path)
+                    };
                 installed_apps.push(InstalledApp {
                     id: app_key_name.clone(),
                     name,
                     publisher,
                     install_path,
-                    executables: Vec::new(),
+                    executables,
                     icon_base64: String::new(),
                     app_type: String::from("win32"),
                     package_family_name: String::new(),

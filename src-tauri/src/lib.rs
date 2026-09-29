@@ -5,7 +5,7 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn list_installed_apps() -> Vec<apps::collect_installed_apps::InstalledApp> {
     apps::collect_installed_apps::collect_installed_apps()
 }
@@ -18,3 +18,5 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+
