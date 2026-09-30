@@ -1,6 +1,7 @@
 use serde::Serialize;
 use super::find_uninstall_root_keys::find_uninstall_root_keys;
 use super::find_executables::find_executables;
+use crate::utils::is_system_app::is_system_app;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,13 +19,13 @@ pub struct InstalledApp {
 /// Walks every uninstall root key, opens each app's own subkey inside it,
 /// and pulls out the display name and icon path where available.
 pub fn collect_installed_apps() -> Vec<InstalledApp> {
-    let mut installed_apps = Vec::new();
-    let uninstall_root_keys = find_uninstall_root_keys();
+    let mut installed_apps: Vec<InstalledApp> = Vec::new();
+    let uninstall_root_keys: Vec<winreg::RegKey> = find_uninstall_root_keys();
 
     for uninstall_root in uninstall_root_keys.iter() {
         for app_key_name in uninstall_root.enum_keys().flatten() {
             if let Ok(app_registry_key) = uninstall_root.open_subkey(&app_key_name) {
-                let name = app_registry_key
+                let name: String = app_registry_key
                     .get_value::<String, _>("DisplayName")
                     .unwrap_or_default();
 
@@ -32,15 +33,19 @@ pub fn collect_installed_apps() -> Vec<InstalledApp> {
                     continue;
                 }
 
-                let publisher = app_registry_key
+                let publisher: String = app_registry_key
                     .get_value::<String, _>("Publisher")
                     .unwrap_or_default();
 
-                let install_path = app_registry_key
+                let install_path: String = app_registry_key
                     .get_value::<String, _>("InstallLocation")
                     .unwrap_or_default();
+
+                if is_system_app(&name, &publisher, &install_path) {
+                    continue;
+                }
             
-                let executables = if install_path.is_empty() {
+                let executables: Vec<String> = if install_path.is_empty() {
                              Vec::new()
                         } else {
                              find_executables(&install_path)

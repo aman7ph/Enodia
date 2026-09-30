@@ -6,8 +6,8 @@ use winreg::RegKey;
 /// machine-wide installs.
 pub(super) fn find_uninstall_root_keys() -> Vec<RegKey> {
     let mut root_keys = Vec::new();
-    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let hklm: RegKey = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
 
     // 64-bit apps, machine-wide
     if let Ok(key) = hklm.open_subkey_with_flags(

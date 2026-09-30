@@ -1,4 +1,5 @@
 mod apps;
+mod utils;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
